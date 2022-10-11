@@ -2,14 +2,14 @@ import React, { FC } from 'react';
 import { Container } from 'react-bootstrap';
 import PageLayout from '../components/page-layout';
 
-const HomePage: FC = function HomePage() {
+const NotFoundPage: FC = function NotFoundPage() {
   return (
-    <PageLayout title="Home">
-      <Container>
-        <h1>Home Page!</h1>
+    <PageLayout title="Not Found">
+      <Container as="section">
+        <h1>404 &bull; Not Found</h1>
       </Container>
     </PageLayout>
   );
 };
 
-export default HomePage;
+export default NotFoundPage;

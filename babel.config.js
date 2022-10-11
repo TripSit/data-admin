@@ -8,5 +8,8 @@ module.exports = function babelConfig(api) {
       '@babel/preset-react',
       '@babel/preset-typescript',
     ],
+    plugins: [
+      ['babel-plugin-styled-components', { ssr: false }],
+    ],
   };
 };

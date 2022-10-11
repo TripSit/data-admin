@@ -3,6 +3,9 @@
 const path = require('path');
 const { merge } = require('webpack-merge');
 const Html = require('html-webpack-plugin');
+const MiniCssExtract = require('mini-css-extract-plugin');
+
+const BASE_PROXY_URL = 'http://localhost:3000';
 
 const base = {
   context: path.resolve('src'),
@@ -10,6 +13,9 @@ const base = {
     'bootstrap/dist/css/bootstrap.css',
     './index.tsx',
   ],
+  resolve: {
+    extensions: ['.tsx', '.ts', '.jsx', '.js', '.json', '.wasm'],
+  },
   module: {
     strictExportPresence: true,
     rules: [
@@ -23,7 +29,10 @@ const base = {
       },
       {
         test: /\.css$/,
-        loader: 'css-loader',
+        use: [
+          MiniCssExtract.loader,
+          'css-loader',
+        ],
       },
       {
         test: /\.(png|jpe?g)$/,
@@ -40,12 +49,19 @@ const base = {
       template: path.resolve('src/template.html'),
       inject: 'head',
     }),
+    new MiniCssExtract(),
   ],
 };
 
 const environments = {
   development: {
     mode: 'development',
+    devServer: {
+      proxy: {
+        '/api': `${BASE_PROXY_URL}/api`,
+        '/graphql': `${BASE_PROXY_URL}/graphql`,
+      },
+    },
   },
 
   production: {
