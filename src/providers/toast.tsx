@@ -47,24 +47,26 @@ interface Props {
 
 const ToastProvider: FC<Props> = function ToastProvider({ children }) {
   const [messages, setMessages] = useState<Message[]>([]);
+  console.log(messages);
 
   function close(content: string) {
     setMessages((prev) => prev.filter((message) => message.content !== content));
   }
 
   const dispatchToast: Dispatcher = useCallback((content, type = 'info') => {
-    if (!messages.some((message) => message.content === content)) {
+    setMessages((prev) => {
+      if (messages.some((message) => message.content === content)) return prev;
       const closeTimeout = setTimeout(() => close(content), 8000);
-      setMessages((prev) => prev.concat({
+      return prev.concat({
         content,
         type,
         close() {
           clearTimeout(closeTimeout);
           close(content);
         },
-      }));
-    }
-  }, []);
+      });
+    });
+  }, [messages]);
 
   return (
     <ToastContext.Provider value={dispatchToast}>

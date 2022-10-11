@@ -13,7 +13,7 @@ const TsApiInterceptors: FC = function TsApiInterceptors() {
       return Promise.reject(error);
     });
 
-    const resId = tsApi.interceptors.response.use((res) => res.data, (error) => {
+    const resId = tsApi.interceptors.response.use(undefined, (error) => {
       if (error.response.status === 401) {
         history.push('/login');
         return toast('Your session has expired.', 'error');
