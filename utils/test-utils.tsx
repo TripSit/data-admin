@@ -1,5 +1,7 @@
 import React, { FC, ReactElement, ReactNode } from 'react';
 import { render, RenderOptions } from '@testing-library/react';
+import { MemoryRouter as Router } from 'react-router-dom';
+import ToastProvider from '../src/providers/toast';
 
 interface TestProvidersProps {
   children: ReactNode;
@@ -7,9 +9,11 @@ interface TestProvidersProps {
 
 const TestProviders: FC<TestProvidersProps> = function TestProviders({ children }) {
   return (
-    <div>
-      {children}
-    </div>
+    <ToastProvider>
+      <Router>
+        {children}
+      </Router>
+    </ToastProvider>
   );
 };
 

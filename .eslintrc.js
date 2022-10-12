@@ -18,6 +18,7 @@ module.exports = {
       rules: {
         'prefer-destructuring': 0,
         'react/jsx-one-expression-per-line': 0,
+        'react/require-default-props': 0,
       },
     },
     {
@@ -34,6 +35,8 @@ module.exports = {
       files: [
         '**/__tests__/*.test.ts',
         '**/__tests__/*.test.tsx',
+        './utils/**/*.ts',
+        './utils/**/*.tsx',
       ],
       plugins: ['jest'],
       extends: [
@@ -46,6 +49,9 @@ module.exports = {
       },
       env: {
         'jest/globals': true,
+      },
+      rules: {
+        'import/no-extraneous-dependencies': [2, { devDependencies: true }],
       },
     },
   ],

@@ -1,6 +1,8 @@
 import type { Config } from 'jest';
 
 const jestConfig: Config = {
+  testEnvironment: 'jsdom',
+  clearMocks: true,
   setupFilesAfterEnv: [
     '<rootDir>/jest.setup.ts',
   ],

@@ -1,12 +1,11 @@
-import React, { useEffect, useState, FC } from 'react';
+import React, { FC } from 'react';
 import { Link } from 'react-router-dom';
-import { Table, Button, Container } from 'react-bootstrap';
-import { FaTrash } from 'react-icons/fa';
-import axios from 'axios';
-import { useToast } from '../../providers/toast';
-import tsApi from '../../ts-api';
+import { Table, Container } from 'react-bootstrap';
+import usePageFetch from '../../hooks/use-page-fetch';
+import DeleteUserButton from '../../components/user/delete-user-button';
+import Loading from '../../components/loading';
 
-interface User {
+interface UserListing {
   id: string;
   email: string;
   nick: string;
@@ -14,41 +13,15 @@ interface User {
 }
 
 const UserListingPage: FC = function UserListingPage() {
-  const toast = useToast();
-  const [users, setUsers] = useState<User[]>([]);
-  const [isDeleting, setIsDeleting] = useState<boolean>(false);
+  const { data, setData, error } = usePageFetch<{ users: UserListing[] }, UserListing[]>('/user', {
+    transform: ({ users }) => users.map((user) => ({
+      ...user,
+      joinedAt: new Date(user.joinedAt),
+    })),
+  });
 
-  useEffect(() => {
-    const source = axios.CancelToken.source();
-    tsApi.get<{ users: User[] }>('/user', {
-      cancelToken: source.token,
-    })
-      .then((res) => setUsers(res.data.users.map((user) => ({
-        ...user,
-        joinedAt: new Date(user.joinedAt),
-      }))))
-      .catch((ex) => {
-        if (!axios.isCancel(ex)) {
-          toast('Failed to fetch users.', 'error');
-        }
-      });
-
-    return () => source.cancel();
-  }, []);
-
-  async function deleteUser(userId: string) {
-    setIsDeleting(true);
-    return tsApi.delete(`/user/${userId}`)
-      .then(() => {
-        toast('User successfully deleted.', 'success');
-        setUsers((prev) => prev.filter((user) => user.id !== userId));
-      })
-      .catch(() => {
-        toast('Failed to delete user.', 'error');
-      })
-      .finally(() => {
-        setIsDeleting(false);
-      });
+  function onDeleteSuccess(deletedUserId: string) {
+    setData((prev) => prev && prev.filter((user) => user.id !== deletedUserId));
   }
 
   return (
@@ -64,7 +37,13 @@ const UserListingPage: FC = function UserListingPage() {
           </tr>
         </thead>
         <tbody>
-          {users.map((user) => (
+          {data === null || error === null ? (
+            <tr>
+              <td colSpan={4}>
+                {error?.message || <Loading />}
+              </td>
+            </tr>
+          ) : data?.map((user) => (
             <tr key={user.id}>
               <th>
                 <Link to={`/users/${user.id}`}>{user.nick}</Link>
@@ -72,14 +51,10 @@ const UserListingPage: FC = function UserListingPage() {
               <td>{user.email}</td>
               <td>{user.joinedAt.toLocaleDateString()}</td>
               <td>
-                <Button
-                  size="sm"
-                  variant="danger"
-                  disabled={isDeleting}
-                  onClick={() => deleteUser(user.id)}
-                >
-                  <FaTrash />
-                </Button>
+                <DeleteUserButton
+                  userId={user.id}
+                  onSuccess={() => onDeleteSuccess(user.id)}
+                />
               </td>
             </tr>
           ))}
