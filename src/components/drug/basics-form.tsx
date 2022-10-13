@@ -10,6 +10,7 @@ import {
 } from 'react-bootstrap';
 import { FaSave } from 'react-icons/fa';
 import { useToast } from '../../providers/toast';
+import TextField from '../field/text';
 
 const UPDATE_DRUG = gql`
   mutation UpdateDrug($drugId: UUID!, $updates: DrugUpdateInput!) {
@@ -81,14 +82,15 @@ const DrugBasicsForm: FC<Props> = function DrugBasicsForm({
         <FormikForm>
           <Row>
             <Col xs={12}>
-              <Form.Group controlId="summary">
+              {/* <Form.Group controlId="summary">
                 <Form.Label>Summary</Form.Label>
                 <Field
                   name="summary"
                   disabled={isSubmitting}
                   component={Form.Control}
                 />
-              </Form.Group>
+              </Form.Group> */}
+              <TextField name="summary" label="Summary" disabled={isSubmitting} />
             </Col>
 
             <Col xs={12} md={6}>
