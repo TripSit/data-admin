@@ -1,6 +1,14 @@
 import React, { FC } from 'react';
+import styled from 'styled-components';
 import { useField } from 'formik';
 import { Form } from 'react-bootstrap';
+
+const Label = styled(Form.Label)`
+  font-weight: bold;
+  &::after {
+    content: ':';
+  }
+`;
 
 interface Props {
   className?: string;
@@ -20,9 +28,7 @@ const TextField: FC<Props> = function TextField({
 
   return (
     <Form.Group className={className} controlId={name}>
-      {label && (
-        <Form.Label>{label}</Form.Label>
-      )}
+      {label && <Label>{label}</Label>}
       <Form.Control {...field} {...props} disabled={!!disabled} />
       {touched && error && (
         <Form.Control.Feedback type="invalid">{error}</Form.Control.Feedback>

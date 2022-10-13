@@ -1,15 +1,11 @@
 import React, { FC } from 'react';
 import { useMutation, gql } from '@apollo/client';
-import { Formik, Form as FormikForm, Field } from 'formik';
+import { Formik } from 'formik';
 import * as Yup from 'yup';
-import {
-  Form,
-  Button,
-  Row,
-  Col,
-} from 'react-bootstrap';
+import { Button, Row, Col } from 'react-bootstrap';
 import { FaSave } from 'react-icons/fa';
 import { useToast } from '../../providers/toast';
+import Form from '../form';
 import TextField from '../field/text';
 
 const UPDATE_DRUG = gql`
@@ -79,47 +75,35 @@ const DrugBasicsForm: FC<Props> = function DrugBasicsForm({
       onSubmit={(values) => handleSubmit(values)}
     >
       {({ isSubmitting }) => (
-        <FormikForm>
+        <Form>
           <Row>
             <Col xs={12}>
-              {/* <Form.Group controlId="summary">
-                <Form.Label>Summary</Form.Label>
-                <Field
-                  name="summary"
-                  disabled={isSubmitting}
-                  component={Form.Control}
-                />
-              </Form.Group> */}
               <TextField name="summary" label="Summary" disabled={isSubmitting} />
             </Col>
+          </Row>
 
+          <Row>
             <Col xs={12} md={6}>
-              <Form.Group controlId="psychonautWikiUrl">
-                <Form.Label>Psychonaut Wiki</Form.Label>
-                <Field
-                  name="psychonautWikiUrl"
-                  disabled={isSubmitting}
-                  component={Form.Control}
-                />
-              </Form.Group>
+              <TextField
+                name="psychonautWikiUrl"
+                label="Psychonaut Wiki"
+                disabled={isSubmitting}
+              />
             </Col>
 
             <Col xs={12} md={6}>
-              <Form.Group controlId="errowidExperiencesUrl">
-                <Form.Label>Errowid Experiences</Form.Label>
-                <Field
-                  name="errowidExperiencesUrl"
-                  disabled={isSubmitting}
-                  component={Form.Control}
-                />
-              </Form.Group>
+              <TextField
+                name="errowidExperiencesUrl"
+                label="Errowid Experiences"
+                disabled={isSubmitting}
+              />
             </Col>
           </Row>
 
           <Button type="submit" variant="info" disabled={isSubmitting}>
             <FaSave />
           </Button>
-        </FormikForm>
+        </Form>
       )}
     </Formik>
   );
