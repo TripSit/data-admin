@@ -72,13 +72,18 @@ const DrugBasicsForm: FC<Props> = function DrugBasicsForm({
         errowidExperiencesUrl: errowidExperiencesUrl || '',
       }}
       validationSchema={validationSchema}
-      onSubmit={(values) => handleSubmit(values)}
+      onSubmit={handleSubmit}
     >
       {({ isSubmitting }) => (
         <Form>
           <Row>
             <Col xs={12}>
-              <TextField name="summary" label="Summary" disabled={isSubmitting} />
+              <TextField
+                name="summary"
+                label="Summary"
+                disabled={isSubmitting}
+                textArea
+              />
             </Col>
           </Row>
 

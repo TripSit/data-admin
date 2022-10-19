@@ -1,34 +1,37 @@
 import React, { FC } from 'react';
 import { useField } from 'formik';
 import { Form } from 'react-bootstrap';
+import Select from 'react-select';
 import Label from './label';
 
 interface Props {
   className?: string;
   name: string;
   label?: string;
-  disabled?: boolean;
-  textArea?: boolean;
+  disabled?: boolean
+  options: {
+    value: string;
+    label: string;
+  }[];
 }
 
-const TextField: FC<Props> = function TextField({
+const SelectField: FC<Props> = function SelectField({
   className,
   name,
   label,
   disabled,
-  textArea,
   ...props
 }) {
-  const [field, { touched, error }] = useField<string>(name);
+  const [field, { touched, error }, { setValue }] = useField(name);
 
   return (
     <Form.Group className={className} controlId={name}>
       {label && <Label>{label}</Label>}
-      <Form.Control
+      <Select
         {...field}
-        as={textArea ? 'textarea' : undefined}
         {...props}
         disabled={!!disabled}
+        onChange={(newValue) => setValue(newValue)}
       />
       {touched && error && (
         <Form.Control.Feedback type="invalid">{error}</Form.Control.Feedback>
@@ -37,4 +40,4 @@ const TextField: FC<Props> = function TextField({
   );
 };
 
-export default TextField;
+export default SelectField;

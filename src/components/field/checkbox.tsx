@@ -8,27 +8,23 @@ interface Props {
   name: string;
   label?: string;
   disabled?: boolean;
-  textArea?: boolean;
 }
 
-const TextField: FC<Props> = function TextField({
+const CheckboxField: FC<Props> = function CheckboxField({
   className,
   name,
   label,
   disabled,
-  textArea,
-  ...props
 }) {
-  const [field, { touched, error }] = useField<string>(name);
+  const [field, { touched, error }, { setValue }] = useField(name);
 
   return (
     <Form.Group className={className} controlId={name}>
       {label && <Label>{label}</Label>}
-      <Form.Control
+      <Form.Check
         {...field}
-        as={textArea ? 'textarea' : undefined}
-        {...props}
         disabled={!!disabled}
+        onChange={(e) => setValue(e.target.checked)}
       />
       {touched && error && (
         <Form.Control.Feedback type="invalid">{error}</Form.Control.Feedback>
@@ -37,4 +33,4 @@ const TextField: FC<Props> = function TextField({
   );
 };
 
-export default TextField;
+export default CheckboxField;
