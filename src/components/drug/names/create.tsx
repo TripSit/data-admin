@@ -10,8 +10,8 @@ import TextField from '../../field/text';
 import SelectField from '../../field/select';
 
 const CREATE_DRUG_NAME = gql`
-  mutation CreateDrugName($name: String!, $type: DrugNameType!) {
-    createDrugName(name: $name, type: $type) {
+  mutation CreateDrugName($drugId: UUID! $name: String!, $type: DrugNameType!) {
+    createDrugName(drugId: $drugId, name: $name, type: $type) {
       id
       name
       type
@@ -42,6 +42,7 @@ interface QueryResponse {
 }
 
 interface QueryVariables {
+  drugId: string;
   name: string;
   type: DrugNameType;
 }
@@ -53,10 +54,12 @@ const validationSchema = Yup.object({
   .required();
 
 interface Props {
+  drugId: string;
   onSuccess(drugName: DrugName): void | Promise<void>;
 }
 
-const CreateDrugNameForm: FC<Props> = function CreateDrugNameForm({ onSuccess }) {
+const CreateDrugNameForm: FC<Props> = function CreateDrugNameForm({ drugId, onSuccess }) {
+  console.log(drugId);
   const [create] = useMutation<QueryResponse, QueryVariables>(CREATE_DRUG_NAME, {
     onCompleted(data) {
       onSuccess(data.createDrugName);
@@ -67,6 +70,7 @@ const CreateDrugNameForm: FC<Props> = function CreateDrugNameForm({ onSuccess })
     if (!values.type) throw new Error('Missing name type.');
     return create({
       variables: {
+        drugId,
         name: values.name,
         type: values.type,
       },

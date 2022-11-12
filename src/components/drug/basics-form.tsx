@@ -2,27 +2,38 @@ import React, { FC } from 'react';
 import { useMutation, gql } from '@apollo/client';
 import { Formik } from 'formik';
 import * as Yup from 'yup';
-import { Button, Row, Col } from 'react-bootstrap';
-import { FaSave } from 'react-icons/fa';
+import { Row, Col } from 'react-bootstrap';
 import { useToast } from '../../providers/toast';
 import Form from '../form';
 import TextField from '../field/text';
+import FormControls from '../form-controls';
 
 const UPDATE_DRUG = gql`
-  mutation UpdateDrug($drugId: UUID!, $updates: DrugUpdateInput!) {
-    updateDrug(drugId: $drugId, updates: $updates) {
+  mutation UpdateDrug(
+    $drugId: UUID!,
+    $summary: String,
+    $psychonautWikiUrl: String,
+    $errowidExperiencesUrl: String,
+  ) {
+    updateDrug(
+      id: $drugId,
+      summary: $summary,
+      psychonautWikiUrl: $psychonautWikiUrl,
+      errowidExperiencesUrl: $errowidExperiencesUrl,
+    ) {
       id
       summary
       psychonautWikiUrl
       errowidExperiencesUrl
+      updatedAt
     }
   }
 `;
 
 const validationSchema = Yup.object().shape({
   summary: Yup.string().trim(),
-  psychonautWikiUrl: Yup.string().url().trim(),
-  errowidExperiencesUrl: Yup.string().url().trim(),
+  psychonautWikiUrl: Yup.string().trim().url(),
+  errowidExperiencesUrl: Yup.string().trim().url(),
 })
   .required();
 
@@ -32,9 +43,8 @@ interface FormValues {
   errowidExperiencesUrl?: string;
 }
 
-interface MutationVariables {
+interface MutationVariables extends FormValues {
   drugId: string;
-  updates: FormValues;
 }
 
 interface Props {
@@ -53,6 +63,9 @@ const DrugBasicsForm: FC<Props> = function DrugBasicsForm({
   const toast = useToast();
 
   const [update] = useMutation<FormValues, MutationVariables>(UPDATE_DRUG, {
+    onCompleted() {
+      toast('Basic drug info updated.', 'success');
+    },
     onError() {
       toast('Failed to update drug.', 'error');
     },
@@ -60,7 +73,7 @@ const DrugBasicsForm: FC<Props> = function DrugBasicsForm({
 
   async function handleSubmit(updates: FormValues) {
     return update({
-      variables: { drugId, updates },
+      variables: { drugId, ...updates },
     });
   }
 
@@ -105,9 +118,7 @@ const DrugBasicsForm: FC<Props> = function DrugBasicsForm({
             </Col>
           </Row>
 
-          <Button type="submit" variant="info" disabled={isSubmitting}>
-            <FaSave />
-          </Button>
+          <FormControls submit />
         </Form>
       )}
     </Formik>

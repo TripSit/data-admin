@@ -8,20 +8,21 @@ import DrugBasicsForm from '../../components/drug/basics-form';
 import DrugNamesForm from '../../components/drug/names';
 
 const DRUG_DETAILS = gql`
-  query DrugDetails($drugId: UUID!) {
-    drugs(query: { id: $drugId }) {
+  query DrugDetails($id: UUID!) {
+    drugs(id: $id) {
       id
       name
       aliases {
         id
         name
         type
+        isDefault
       }
       summary
       psychonautWikiUrl
       errowidExperiencesUrl
       lastUpdatedBy {
-        nick
+        username
       }
       updatedAt
       createdAt
@@ -52,13 +53,21 @@ interface DrugDetails extends DrugDetailsBase {
   createdAt: Date;
 }
 
+interface GqlResponse {
+  drugs: DrugDetailsPayload[];
+}
+
+interface GqlVariables {
+  id: string;
+}
+
 const DrugDetailsPage: FC = function DrugDetailsPage() {
   const { drugId } = useParams<{ drugId: string }>();
   const [drug, setDrug] = useState<DrugDetails>();
-  const { loading, error } = useQuery<{ drugs: DrugDetailsPayload[] }, { drugId: string }>(
+  const { loading, error } = useQuery<GqlResponse, GqlVariables>(
     DRUG_DETAILS,
     {
-      variables: { drugId },
+      variables: { id: drugId },
       onCompleted(data) {
         const [payload] = data.drugs;
         setDrug({
@@ -86,7 +95,7 @@ const DrugDetailsPage: FC = function DrugDetailsPage() {
       />
 
       <h2>Names</h2>
-      <DrugNamesForm names={drug.aliases} />
+      <DrugNamesForm drugId={drug.id} names={drug.aliases} />
     </Container>
   );
 };
