@@ -4,8 +4,8 @@
   "version": "0.1.0",
   "main": "./dist/index.js",
   "scripts": {
+    "start": "NODE_ENV=development webpack-dev-server",
     "build": "NODE_ENV=production webpack",
-    "dev": "NODE_ENV=development webpack-dev-server",
     "test": "npm run lint && npm run tsc && npm run jest",
     "lint": "eslint --ext .js,.jsx,.ts,.tsx .",
     "tsc": "tsc --noEmit",
