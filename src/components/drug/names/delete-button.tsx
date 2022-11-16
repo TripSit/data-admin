@@ -1,6 +1,6 @@
 import React, { FC } from 'react';
 import { useMutation, gql } from '@apollo/client';
-import DeleteButton from '../../delete-button';
+import DeleteButton from '../../buttons/delete';
 
 const DELETE_DRUG_NAME = gql`
   mutation DeleteDrugName($drugNameId: UUID!) {

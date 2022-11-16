@@ -1,62 +1,109 @@
-import React, { useEffect, useState, FC } from 'react';
-import styled from 'styled-components';
-import { useParams, useHistory } from 'react-router-dom';
+import React, { FC, useState } from 'react';
+import { useQuery, gql } from '@apollo/client';
+import { useParams } from 'react-router-dom';
 import { Container } from 'react-bootstrap';
-import axios from 'axios';
-import { useToast } from '../../providers/toast';
-import tsApi from '../../ts-api';
-import DeleteUserButton from '../../components/user/delete-user-button';
+import UserActions, { UserAction } from '../../components/user/actions';
+import Dl from '../../components/dl';
+import NotFoundPage from '../not-found';
+import Loading from '../../components/loading';
 
-const HeadingWithControls = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
+const USER_DETAILS = gql`
+  query UserDetails($userId: UUID!) {
+    users(id: $userId) {
+      id
+      email
+      username
+      discord {
+        id
+        username
+        discriminator
+      }
+      actions {
+        id
+        type
+        description
+        internalNote
+        expiresAt
+        repealedBy {
+          id
+          username
+        }
+        repealedAt
+        createdBy {
+          id
+          username
+        }
+        createdAt
+      }
+      lastSeen
+      joinedAt
+    }
+  }
 `;
 
 interface UserDetails {
   id: string;
-  email: string;
-  nick: string;
+  email?: string;
+  username?: string;
+  discord?: {
+    id: string;
+    username: string;
+    discriminator: string;
+  };
+  actions: UserAction[];
+  lastSeen: Date;
   joinedAt: Date;
 }
 
+interface QqlVariables {
+  userId: string;
+}
+
 const UserDetailsPage: FC = function UserDetailsPage() {
-  const history = useHistory();
-  const { userId } = useParams<{ userId: string }>();
-  const toast = useToast();
-  const [user, setUser] = useState<UserDetails>();
+  const { userId } = useParams<QqlVariables>();
 
-  useEffect(() => {
-    const source = axios.CancelToken.source();
-    tsApi.get<{ user: UserDetails }>(`/user/${userId}`, {
-      cancelToken: source.token,
-    })
-      .then((res) => setUser({
-        ...res.data.user,
-        joinedAt: new Date(res.data.user.joinedAt),
-      }))
-      .catch((ex) => {
-        if (!axios.isCancel(ex)) {
-          toast('Failed to fetch user.', 'error');
-        }
+  const [userDetails, setUserDetails] = useState<UserDetails>();
+  const { loading, error } = useQuery<{ users: UserDetails[] }, QqlVariables>(USER_DETAILS, {
+    variables: { userId },
+    onCompleted(data) {
+      const [payload] = data.users;
+      setUserDetails({
+        ...payload,
+        lastSeen: new Date(payload.lastSeen),
+        joinedAt: new Date(payload.joinedAt),
+        actions: payload.actions.map((action) => ({
+          ...action,
+          expiresAt: action.expiresAt && new Date(action.expiresAt),
+          repealedAt: action.repealedAt && new Date(action.repealedAt),
+          createdAt: action.createdAt && new Date(action.createdAt),
+        })),
       });
+    },
+  });
 
-    return () => source.cancel();
-  }, []);
+  if (loading) return <Loading />;
+  if (error) return <p>{error.message}</p>;
+  if (!userDetails) return <NotFoundPage />;
 
   return (
-    <Container as="section">
-      <HeadingWithControls>
-        <h1>User Details</h1>
-        <div>
-          {user && (
-            <DeleteUserButton userId={user.id} onSuccess={() => history.push('/users')} />
-          )}
-        </div>
-      </HeadingWithControls>
-      {user && (
-        <p>{user.nick}</p>
-      )}
+    <Container>
+      <h1>{userDetails.username || userDetails.discord?.username}</h1>
+
+      <Dl>
+        <dt>Username</dt>
+        <dd>{userDetails.username}</dd>
+        <dt>Email</dt>
+        <dd>{userDetails.email}</dd>
+        <dt>Discord</dt>
+        <dd>{userDetails.discord?.username}#{userDetails.discord?.discriminator}</dd>
+        <dt>Last Seen</dt>
+        <dd>{userDetails.lastSeen.toLocaleString()}</dd>
+        <dt>Joined At</dt>
+        <dd>{userDetails.joinedAt.toLocaleString()}</dd>
+      </Dl>
+
+      <h2>Actions</h2>
+      <UserActions actions={userDetails.actions} />
     </Container>
   );
 };

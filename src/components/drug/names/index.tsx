@@ -5,7 +5,7 @@ import { TYPE_LABELS } from './constants';
 import DeleteButton from './delete-button';
 import SetDefaultButton from './set-default-button';
 import CreateForm from './create';
-import CreateButton from '../../create-button';
+import CreateButton from '../../buttons/create';
 
 interface Props {
   drugId: string;

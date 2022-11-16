@@ -19,7 +19,7 @@ const Routes: FC = function Routes() {
       <Route exact path="/drugs/:drugId" component={DrugDetailsPage} />
 
       <Route exact path="/users" component={UserListingPage} />
-      <Route exact path="/users/:userId" component={UserDetailsPage} />
+      <Route exact path="/user/:userId" component={UserDetailsPage} />
 
       <Route component={NotFoundPage} />
     </Switch>

@@ -1,60 +1,70 @@
 import React, { FC } from 'react';
+import { useQuery, gql } from '@apollo/client';
 import { Link } from 'react-router-dom';
 import { Table, Container } from 'react-bootstrap';
-import usePageFetch from '../../hooks/use-page-fetch';
-import DeleteUserButton from '../../components/user/delete-user-button';
 import Loading from '../../components/loading';
+import EditButton from '../../components/buttons/edit';
+
+const GET_ALL_USERS = gql`
+  query GetAllUsers {
+    users {
+      id
+      username
+      discord {
+        id
+        username
+      }
+      lastSeen
+      joinedAt
+    }
+  }
+`;
 
 interface UserListing {
   id: string;
-  email: string;
-  nick: string;
+  username: string;
+  discord: {
+    id: string;
+    username: string;
+  };
+  isFullBanned: string;
+  lastSeen: Date;
   joinedAt: Date;
 }
 
 const UserListingPage: FC = function UserListingPage() {
-  const { data, setData, error } = usePageFetch<{ users: UserListing[] }, UserListing[]>('/user', {
-    transform: ({ users }) => users.map((user) => ({
-      ...user,
-      joinedAt: new Date(user.joinedAt),
-    })),
-  });
-
-  function onDeleteSuccess(deletedUserId: string) {
-    setData((prev) => prev && prev.filter((user) => user.id !== deletedUserId));
-  }
+  const { data, loading, error } = useQuery<{ users: UserListing[] }>(GET_ALL_USERS);
 
   return (
-    <Container as="section">
+    <Container>
       <h1>Users</h1>
       <Table striped bordered>
         <thead>
           <tr>
-            <th>Nick</th>
-            <th>Email</th>
-            <th>Joined At</th>
+            <th>Username</th>
+            <th>Discord</th>
+            <th>Last Seen</th>
+            <th>Joined</th>
             <th aria-label="Controls" />
           </tr>
         </thead>
         <tbody>
-          {data === null || error === null ? (
+          {loading || error ? (
             <tr>
               <td colSpan={4}>
                 {error?.message || <Loading />}
               </td>
             </tr>
-          ) : data?.map((user) => (
+          ) : data?.users.map((user) => (
             <tr key={user.id}>
               <th>
-                <Link to={`/users/${user.id}`}>{user.nick}</Link>
+                <Link to={`/user/${user.id}`}>{user.username}</Link>
               </th>
-              <td>{user.email}</td>
-              <td>{user.joinedAt.toLocaleDateString()}</td>
+              <td>{user.discord?.username}</td>
+              <td>{user.lastSeen.toLocaleString()}</td>
+              <td>{user.joinedAt.toLocaleString()}</td>
               <td>
-                <DeleteUserButton
-                  userId={user.id}
-                  onSuccess={() => onDeleteSuccess(user.id)}
-                />
+                <EditButton baseUrl="/user" id={user.id} />
               </td>
             </tr>
           ))}
