@@ -6,7 +6,7 @@ const Html = require('html-webpack-plugin');
 const MiniCssExtract = require('mini-css-extract-plugin');
 const Brotli = require('brotli-webpack-plugin');
 
-const BASE_PROXY_URL = 'http://localhost:3000';
+// const BASE_PROXY_URL = 'http://localhost:3000';
 
 const base = {
   context: path.resolve('src'),
