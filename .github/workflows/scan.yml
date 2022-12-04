@@ -3,8 +3,7 @@ name: Scan
 on:
   push:
     branches:
-      - main
-      - feature/login
+      - master
 
 jobs:
   Scan:
